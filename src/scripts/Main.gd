@@ -8,6 +8,11 @@ func _ready():
 	print(LocalizationManager.get_string("FOREST_ELVES"))
 	print(LocalizationManager.get_string("PALACE_GUARD"))
 	print(LocalizationManager.get_string("VILLAINS"))
+	
+	# Пример использования мемных элементов
+	print(LocalizationManager.get_string("MEME_EXAMPLE_1"))
+	print(LocalizationManager.get_string("MEME_EXAMPLE_2"))
+	print(LocalizationManager.get_string("MEME_EXAMPLE_3"))
 
 func _process(delta):
 	pass
