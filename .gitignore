@@ -1,0 +1,26 @@
+# Godot
+export_presets.cfg
+godot.editor.pid
+*.godot
+!/project.godot
+
+# Imported assets
+.import/
+
+# Export templates
+*.tpz
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*~
+
+# IDE
+*.swp
+*.swo

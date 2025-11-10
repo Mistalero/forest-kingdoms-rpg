@@ -2,6 +2,11 @@
 
 config/name="Forest Kingdoms RPG"
 config/icon="res://icon.png"
+run/main_scene="res://src/scenes/Main.tscn"
+
+[autoload]
+
+GameManager="*res://src/autoload/GameManager.gd"
 
 [rendering]
 
