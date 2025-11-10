@@ -1,0 +1,16 @@
+[application]
+
+config/name="Forest Kingdoms RPG"
+config/icon="res://icon.png"
+
+[rendering]
+
+environment/default_environment_mode=2
+
+[physics]
+
+common/enable_pause_aware_picking=true
+
+[gui]
+
+common/drop_mouse_on_gui_input=false
