@@ -7,6 +7,7 @@ run/main_scene="res://src/scenes/Main.tscn"
 [autoload]
 
 GameManager="*res://src/autoload/GameManager.gd"
+LocalizationManager="*res://src/autoload/LocalizationManager.gd"
 
 [rendering]
 
