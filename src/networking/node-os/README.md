@@ -21,6 +21,7 @@ The Python implementation is provided as a reference. The main implementation fo
 
 - `node.py` - Main implementation file (Python reference implementation)
 - `src/node_os.gd` - Main implementation file (GDScript for Godot)
+- `src/NodeOSAdapter.gd` - Adapter for integration with existing networking components
 - `src/` - Source code directory (for Godot adaptation)
 - `tests/` - Test files (to be created)
 
@@ -30,6 +31,16 @@ The Python implementation is provided as a reference. The main implementation fo
 - Game state synchronization
 - Game event handling
 - Network interface management for P2P communication
+
+## Integration with Existing Components
+
+The NodeOS implementation is integrated with the existing networking components through the NodeOSAdapter:
+
+- `NodeOSAdapter.gd` - Adapter that connects NodeOS with existing networking components
+- Works with `P2PFramework.gd` - Main P2P framework
+- Integrates with `ConnectionManager.gd` - Connection management
+- Uses `MessageHandler.gd` - Message handling between nodes
+- Connects with `DiscoveryManager.gd` - Node and session discovery
 
 ## Usage (GDScript Implementation)
 
@@ -55,6 +66,36 @@ func _ready():
     # Display node information
     var info = node.get_node_info()
     print("Node ID: " + info["node_id"])
+```
+
+To use the NodeOSAdapter for integration with existing components:
+
+```gdscript
+extends Node
+
+# Import the NodeOSAdapter
+const NodeOSAdapter = preload("res://src/networking/node-os/src/NodeOSAdapter.gd")
+
+func _ready():
+    # Create adapter instance
+    var node_adapter = NodeOSAdapter.new()
+    
+    # Connect to signals
+    node_adapter.connect("node_initialized", Callable(self, "_on_node_initialized"))
+    node_adapter.connect("player_joined", Callable(self, "_on_player_joined"))
+    
+    # Initialize and start adapter
+    node_adapter.initialize()
+    node_adapter.start()
+    
+    # Use adapter functionality
+    node_adapter.add_player("player1", {"name": "Alice", "level": 1})
+
+func _on_node_initialized(node_info):
+    print("Node initialized: " + node_info["node_id"])
+
+func _on_player_joined(player_id, player_data):
+    print("Player joined: " + player_id)
 ```
 
 ## API Reference
@@ -83,6 +124,43 @@ func _ready():
 
 - `demo()` - Demonstrate node functionality
 
+### NodeOSAdapter Class (GDScript)
+
+#### Core Methods
+
+- `initialize()` - Initialize the adapter and connect to existing components
+- `start()` - Start the adapter
+- `stop()` - Stop the adapter
+- `send_message(peer_id: int, message_type: String, data: Dictionary)` - Send message through existing messaging system
+- `get_node_info()` - Get node information through NodeOS
+
+#### Integration Methods
+
+- `get_node_info()` - Get node information
+- `create_process()` - Create process (delegated to NodeOS)
+- `terminate_process()` - Terminate process (delegated to NodeOS)
+- `create_file()` - Create file (delegated to NodeOS)
+- `read_file()` - Read file (delegated to NodeOS)
+- `add_network_interface()` - Add network interface (delegated to NodeOS)
+- `get_system_hash()` - Get system hash (delegated to NodeOS)
+
+#### Game Integration Methods
+
+- `add_player()` - Add player (delegated to NodeOS with signal emission)
+- `remove_player()` - Remove player (delegated to NodeOS with signal emission)
+- `update_game_state()` - Update game state (delegated to NodeOS with signal emission)
+- `get_game_state()` - Get game state (delegated to NodeOS)
+- `add_game_event()` - Add game event (delegated to NodeOS)
+
+#### Signals
+
+- `node_initialized(node_info)` - Emitted when node is initialized
+- `node_ready()` - Emitted when node is ready
+- `game_state_updated(state)` - Emitted when game state is updated
+- `player_joined(player_id, player_data)` - Emitted when player joins
+- `player_left(player_id)` - Emitted when player leaves
+- `message_from_node(message_data)` - Emitted when message is received from node
+
 ## Integration with Forest Kingdoms RPG
 
 The node implementation will be integrated with the existing networking components in `src/networking/`:
@@ -96,7 +174,7 @@ The node implementation will be integrated with the existing networking componen
 ## Next Steps
 
 1. ~~Convert the Python implementation to GDScript~~ (Completed)
-2. Integrate with existing networking components
+2. ~~Integrate with existing networking components~~ (Completed)
 3. Implement P2P communication protocols
 4. Create test scenarios for multiplayer gameplay
 5. Optimize for real-time game performance
