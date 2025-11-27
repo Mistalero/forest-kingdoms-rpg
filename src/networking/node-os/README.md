@@ -15,11 +15,12 @@ The implementation simulates core OS components within a node and extends them f
 
 ## Important Note
 
-This is a Python implementation that needs to be adapted for Godot. The current implementation is provided as a reference for the Godot adaptation.
+The Python implementation is provided as a reference. The main implementation for Godot Engine is in GDScript.
 
 ## Structure
 
 - `node.py` - Main implementation file (Python reference implementation)
+- `src/node_os.gd` - Main implementation file (GDScript for Godot)
 - `src/` - Source code directory (for Godot adaptation)
 - `tests/` - Test files (to be created)
 
@@ -30,36 +31,57 @@ This is a Python implementation that needs to be adapted for Godot. The current 
 - Game event handling
 - Network interface management for P2P communication
 
-## Adaptation for Godot
+## Usage (GDScript Implementation)
 
-The Python implementation needs to be converted to a format compatible with Godot Engine. This will likely involve:
+To use the GDScript implementation in Godot:
 
-1. Converting Python classes to GDScript or C# classes
-2. Adapting network communication to Godot's networking API
-3. Integrating with Godot's scene system
-4. Adapting file I/O to Godot's resource system
+1. Copy the `src/node_os.gd` file to your Godot project
+2. Instantiate the NodeOS class in your scene:
 
-## Usage (Python Reference)
+```gdscript
+extends Node
 
-Run the node implementation:
+# Import the NodeOS class
+const NodeOS = preload("res://path/to/node_os.gd")
 
-```bash
-python node.py
+func _ready():
+    # Create a node instance
+    var node = NodeOS.new()
+    
+    # Use node functionality
+    node.add_network_interface("eth0", "192.168.1.100")
+    node.add_player("player1", {"name": "Alice", "level": 1})
+    
+    # Display node information
+    var info = node.get_node_info()
+    print("Node ID: " + info["node_id"])
 ```
-
-This will create a node instance with default settings and display basic information about the node.
 
 ## API Reference
 
-### NodeOS Class
+### NodeOS Class (GDScript)
+
+#### Core Methods
+
+- `get_node_info()` - Get comprehensive node information
+- `create_process(name: String, command: String)` - Create a new process
+- `terminate_process(process_id: String)` - Terminate a process
+- `create_file(path: String, content: String)` - Create a file in the simulated filesystem
+- `read_file(path: String)` - Read a file from the simulated filesystem
+- `add_network_interface(interface_name: String, address: String)` - Add a network interface
+- `get_system_hash()` - Get a hash representing the current system state
 
 #### Game-Specific Methods
 
-- `add_player(player_id: str, player_data: Dict[str, Any])` - Add a player to the game
-- `remove_player(player_id: str)` - Remove a player from the game
-- `update_game_state(state_data: Dict[str, Any])` - Update the game state
+- `add_player(player_id: String, player_data: Dictionary)` - Add a player to the game
+- `remove_player(player_id: String)` - Remove a player from the game
+- `update_game_state(state_data: Dictionary)` - Update the game state
 - `get_game_state()` - Get the current game state
-- `add_game_event(event_type: str, event_data: Dict[str, Any])` - Add a game event
+- `add_game_event(event_type: String, event_data: Dictionary)` - Add a game event
+
+#### Demo Method
+
+- `demo()` - Demonstrate node functionality
 
 ## Integration with Forest Kingdoms RPG
 
@@ -73,7 +95,7 @@ The node implementation will be integrated with the existing networking componen
 
 ## Next Steps
 
-1. Convert the Python implementation to GDScript
+1. ~~Convert the Python implementation to GDScript~~ (Completed)
 2. Integrate with existing networking components
 3. Implement P2P communication protocols
 4. Create test scenarios for multiplayer gameplay
