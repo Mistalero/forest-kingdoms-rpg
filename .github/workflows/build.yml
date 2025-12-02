@@ -1,0 +1,45 @@
+name: Build Forest Kingdoms RPG
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build for ${{ matrix.platform }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [windows, linux, mac]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v1
+        with:
+          version: 3.5.1
+          use-dotnet: false
+
+      - name: Export Game
+        run: |
+          # Создание директории для экспорта
+          mkdir -p builds/${{ matrix.platform }}
+          
+          # Экспорт игры для соответствующей платформы
+          if [ "${{ matrix.platform }}" = "windows" ]; then
+            godot --export "Windows Desktop" builds/${{ matrix.platform }}/ForestKingdoms.exe
+          elif [ "${{ matrix.platform }}" = "linux" ]; then
+            godot --export "Linux/X11" builds/${{ matrix.platform }}/ForestKingdoms.x86_64
+          elif [ "${{ matrix.platform }}" = "mac" ]; then
+            godot --export "macOS" builds/${{ matrix.platform }}/ForestKingdoms.zip
+          fi
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: forest-kingdoms-${{ matrix.platform }}
+          path: builds/${{ matrix.platform }}/
