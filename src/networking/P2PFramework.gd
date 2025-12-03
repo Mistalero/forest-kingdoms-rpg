@@ -65,12 +65,25 @@ func initialize_components():
 
 # Инициализация P2P адаптера
 func initialize_p2p_adapter():
-	# В реальной реализации здесь будет код инициализации P2P адаптера
-	# который интегрирует JavaScript P2P компоненты с игрой
 	print("Инициализация P2P адаптера...")
 	
-	# Для демонстрации создадим фиктивный адаптер
-	p2p_adapter = DummyP2PAdapter.new()
+	# Загрузка JavaScript P2P адаптера
+	p2p_adapter = preload("res://src/networking/p2p/JavaScriptP2PAdapter.gd").new()
+	
+	# Инициализация адаптера
+	if p2p_adapter.initialize():
+		print("JavaScript P2P адаптер инициализирован успешно")
+		
+		# Подключение к сигналам адаптера
+		p2p_adapter.connect("node_initialized", Callable(self, "_on_node_initialized"))
+		p2p_adapter.connect("crdt_created", Callable(self, "_on_crdt_created"))
+		p2p_adapter.connect("crdt_updated", Callable(self, "_on_crdt_updated"))
+		p2p_adapter.connect("state_serialized", Callable(self, "_on_state_serialized"))
+		p2p_adapter.connect("state_deserialized", Callable(self, "_on_state_deserialized"))
+	else:
+		push_error("Не удалось инициализировать JavaScript P2P адаптер")
+		# Создаем фиктивный адаптер в случае ошибки
+		p2p_adapter = DummyP2PAdapter.new()
 	
 	print("P2P адаптер инициализирован")
 
@@ -144,10 +157,7 @@ func create_game_state_crdt(id: String, type: String, initial_value = null):
 		push_error("Фреймворк не инициализирован")
 		return null
 	
-	# В реальной реализации здесь будет код создания CRDT через P2P адаптер
-	# Для демонстрации возвращаем фиктивный CRDT
-	var crdt = DummyCRDT.new(id, type, initial_value)
-	return crdt
+	return p2p_adapter.create_game_state_crdt(id, type, initial_value)
 
 # Обработчики сигналов
 func _on_peer_connected(peer_id: int):
@@ -162,6 +172,27 @@ func _on_message_received(message_data: Dictionary):
 func _on_error_occurred(error_code: int, error_message: String):
 	emit_signal("error_occurred", error_code, error_message)
 
+# Обработчики сигналов от P2P адаптера
+func _on_node_initialized(node_id: String, did_document):
+	print("Node initialized: ", node_id)
+	# Здесь можно добавить логику обработки инициализации ноды
+
+func _on_crdt_created(crdt_id: String, crdt_type: String):
+	print("CRDT created: ", crdt_id, " type: ", crdt_type)
+	# Здесь можно добавить логику обработки создания CRDT
+
+func _on_crdt_updated(crdt_id: String, new_value):
+	print("CRDT updated: ", crdt_id, " new value: ", new_value)
+	# Здесь можно добавить логику обработки обновления CRDT
+
+func _on_state_serialized(serialized_state: String):
+	print("State serialized, length: ", len(serialized_state))
+	# Здесь можно добавить логику обработки сериализации состояния
+
+func _on_state_deserialized():
+	print("State deserialized")
+	# Здесь можно добавить логику обработки десериализации состояния
+
 # Получение экземпляра фреймворка (для синглтона)
 static func get_instance() -> P2PFramework:
 	return instance
@@ -173,9 +204,19 @@ class DummyP2PAdapter:
 	func _init():
 		print("Создан фиктивный P2P адаптер")
 	
-	func create_crdt(id: String, type: String, initial_value):
+	func create_game_state_crdt(id: String, type: String, initial_value):
 		print("Создан фиктивный CRDT: ", id, " типа ", type)
 		return DummyCRDT.new(id, type, initial_value)
+	
+	func initialize():
+		print("Инициализация фиктивного P2P адаптера")
+		return true
+	
+	func get_node_id() -> String:
+		return "dummy-node-id"
+	
+	func get_did_document():
+		return {"id": "did:dummy:node-id"}
 
 # Фиктивный CRDT для демонстрации
 class DummyCRDT:
@@ -191,9 +232,9 @@ class DummyCRDT:
 		value = p_value
 		print("Создан фиктивный CRDT: ", id, " типа ", type, " со значением ", value)
 	
-	func set_value(new_value):
+	func set(new_value):
 		value = new_value
 		print("Значение CRDT ", id, " изменено на ", value)
 	
-	func get_value():
+	func get():
 		return value

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.0">
+    <TriggerPackage/>
+    <TimerPackage/>
+    <AliasPackage/>
+    <ActionPackage/>
+    <ScriptPackage>
+        <ScriptGroup isActive="yes" isFolder="yes">
+            <name>Forest Kingdoms RPG</name>
+            <packageName>Forest Kingdoms RPG</packageName>
+            <script></script>
+            <eventHandlerList/>
+            <Script isActive="yes" isFolder="no">
+                <name>FKRPG_Init</name>
+                <packageName></packageName>
+                <script>-- Инициализация скриптов для Forest Kingdoms RPG
+-- Поддержка MSDP и GMCP протоколов
+
+function fkrpg_init()
+    -- Включение MSDP
+    if msdp then
+        sendMSDP("LIST")
+        sendMSDP("REPORT", "HEALTH")
+        sendMSDP("REPORT", "HEALTH_MAX")
+        sendMSDP("REPORT", "MANA")
+        sendMSDP("REPORT", "MANA_MAX")
+        sendMSDP("REPORT", "LEVEL")
+        sendMSDP("REPORT", "EXPERIENCE")
+        sendMSDP("REPORT", "GOLD")
+    end
+    
+    -- Отправка GMCP Hello
+    if gmcp then
+        sendGMCP("Core.Hello", {client = "MUDlet", version = "1.0.0"})
+    end
+    
+    echo("Forest Kingdoms RPG: Поддержка расширенных протоколов включена
+")
+end
+
+-- Регистрация функции инициализации
+registerAnonymousEventHandler("sysConnectionEvent", "fkrpg_init")
+
+-- Обработчик MSDP данных
+function fkrpg_msdp_handler()
+    if msdp["HEALTH"] and msdp["HEALTH_MAX"] then
+        local health_percent = math.floor((msdp["HEALTH"] / msdp["HEALTH_MAX"]) * 100)
+        echo("Здоровье: " .. msdp["HEALTH"] .. "/" .. msdp["HEALTH_MAX"] .. " (" .. health_percent .. "%)
+")
+    end
+    
+    if msdp["MANA"] and msdp["MANA_MAX"] then
+        local mana_percent = math.floor((msdp["MANA"] / msdp["MANA_MAX"]) * 100)
+        echo("Мана: " .. msdp["MANA"] .. "/" .. msdp["MANA_MAX"] .. " (" .. mana_percent .. "%)
+")
+    end
+    
+    if msdp["LEVEL"] then
+        echo("Уровень: " .. msdp["LEVEL"] .. "
+")
+    end
+    
+    if msdp["GOLD"] then
+        echo("Золото: " .. msdp["GOLD"] .. "
+")
+    end
+end
+
+-- Регистрация обработчика MSDP
+registerAnonymousEventHandler("sysMSDPUpdate", "fkrpg_msdp_handler")
+
+-- Обработчик GMCP данных
+function fkrpg_gmcp_handler()
+    if gmcp.Char and gmcp.Char.Status then
+        local status = gmcp.Char.Status
+        if status.hp and status.maxhp then
+            local hp_percent = math.floor((status.hp / status.maxhp) * 100)
+            echo("HP: " .. status.hp .. "/" .. status.maxhp .. " (" .. hp_percent .. "%)
+")
+        end
+        
+        if status.mp and status.maxmp then
+            local mp_percent = math.floor((status.mp / status.maxmp) * 100)
+            echo("MP: " .. status.mp .. "/" .. status.maxmp .. " (" .. mp_percent .. "%)
+")
+        end
+        
+        if status.level then
+            echo("Level: " .. status.level .. "
+")
+        end
+        
+        if status.gold then
+            echo("Gold: " .. status.gold .. "
+")
+        end
+    end
+    
+    if gmcp.Room and gmcp.Room.Info then
+        local room = gmcp.Room.Info
+        echo("Location: " .. room.name .. " (" .. room.area .. ")
+")
+    end
+end
+
+-- Регистрация обработчика GMCP
+registerAnonymousEventHandler("gmcp.Char.Status", "fkrpg_gmcp_handler")
+registerAnonymousEventHandler("gmcp.Room.Info", "fkrpg_gmcp_handler")</script>
+                <eventHandlerList>
+                    <string>sysLoadEvent</string>
+                </eventHandlerList>
+            </Script>
+        </ScriptGroup>
+    </ScriptPackage>
+    <KeyPackage/>
+</MudletPackage>
