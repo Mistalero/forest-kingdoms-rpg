@@ -43,29 +43,32 @@
 
 ### Создание CRDT для позиции игрока
 
-```javascript
-// Создание LWWRegister для хранения позиции игрока
-const playerPositionCRDT = p2pAdapter.createGameStateCRDT(
-  'player-position-' + playerId,
-  'LWWRegister',
-  {x: 0, y: 0}
-);
+```gdscript
+# Получение экземпляра P2P фреймворка
+var p2p_framework = P2PFramework.get_instance()
 
-// Обновление позиции игрока
-playerPositionCRDT.set({x: 10, y: 20}, nodeId);
+# Создание LWWRegister для хранения позиции игрока
+var playerPositionCRDT = p2p_framework.create_game_state_crdt(
+  "player-position-" + str(playerId),
+  "LWWRegister",
+  {"x": 0, "y": 0}
+)
+
+# Обновление позиции игрока
+playerPositionCRDT.set({"x": 10, "y": 20})
 ```
 
 ### Синхронизация состояния между узлами
 
-```javascript
-// Сериализация состояния для отправки другим узлам
-const serializedState = p2pAdapter.serializeGameState();
+```gdscript
+# Сериализация состояния для отправки другим узлам
+var serializedState = p2p_framework.p2p_adapter.serialize_game_state()
 
-// Отправка состояния через существующую сетевую инфраструктуру
-networkManager.sendData(peerId, serializedState);
+# Отправка состояния через существующую сетевую инфраструктуру
+networkManager.send_data(peerId, serializedState)
 
-// На принимающем узле - десериализация и слияние состояния
-p2pAdapter.deserializeGameState(receivedState);
+# На принимающем узле - десериализация и слияние состояния
+p2p_framework.p2p_adapter.deserialize_game_state(receivedState)
 ```
 
 ## Безопасность
@@ -92,3 +95,51 @@ p2pAdapter.deserializeGameState(receivedState);
 1. Логи создания и обновления CRDT
 2. Информация о состоянии идентификации узлов
 3. Статистика синхронизации состояния между узлами
+
+## Интеграция с Godot
+
+### JavaScriptP2PAdapter
+
+Для интеграции JavaScript P2P компонентов с Godot используется специальный адаптер `JavaScriptP2PAdapter.gd`, который:
+
+1. Инициализирует JavaScript окружение
+2. Загружает и выполняет JavaScript код P2P компонентов
+3. Предоставляет интерфейс для взаимодействия между Godot и JavaScript
+4. Обрабатывает события и сигналы от P2P компонентов
+
+### Использование в сценах
+
+Для использования P2P функциональности в сценах игры:
+
+1. Добавьте P2PFramework в автозагрузку
+2. Используйте `P2PFramework.get_instance()` для получения экземпляра фреймворка
+3. Создавайте CRDT через `p2p_framework.create_game_state_crdt()`
+4. Обрабатывайте сигналы от фреймворка для реакции на события P2P
+
+### Пример интеграции
+
+```gdscript
+# В скрипте игрового объекта
+extends Node
+
+var p2p_framework
+
+func _ready():
+    # Получение экземпляра P2P фреймворка
+    p2p_framework = P2PFramework.get_instance()
+    
+    # Подключение к сигналам
+    p2p_framework.connect("peer_connected", self, "_on_peer_connected")
+    p2p_framework.connect("message_received", self, "_on_message_received")
+
+func _on_peer_connected(peer_id):
+    print("Новый игрок подключился: ", peer_id)
+
+func _on_message_received(message_data):
+    # Обработка полученного сообщения
+    match message_data.type:
+        "player_move":
+            update_player_position(message_data.data)
+        "chat":
+            display_chat_message(message_data.data)
+```
