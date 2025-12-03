@@ -19,6 +19,9 @@ var social_system: TextSocialSystem
 var msdp_protocol: Node
 var gmcp_protocol: Node
 
+# P2P адаптер
+var p2p_adapter: Node
+
 # Состояние игры
 var game_state: GameState
 var player: Player
@@ -33,6 +36,9 @@ func _ready():
 	
 	# Инициализация протоколов
 	_initialize_protocols()
+	
+	# Инициализация P2P адаптера
+	_initialize_p2p_adapter()
 	
 	# Запуск основного цикла MUD режима
 	_start_mud_loop()
@@ -67,6 +73,20 @@ func _initialize_protocols():
 		
 		# Отправка поддерживаемых модулей
 		gmcp_protocol.send_supported_modules()
+
+# Инициализация P2P адаптера
+func _initialize_p2p_adapter():
+	# Загрузка и инициализация P2P адаптера
+	p2p_adapter = preload("res://src/mud/P2PMUDAdapter.gd").new()
+	
+	if p2p_adapter.initialize(self):
+		print("P2P MUD Adapter initialized successfully")
+		
+		# Отправка игрового состояния через GMCP
+		p2p_adapter.send_game_state_via_gmcp()
+	else:
+		push_error("Failed to initialize P2P MUD Adapter")
+		p2p_adapter = null
 
 # Запуск основного цикла MUD режима
 func _start_mud_loop():
@@ -111,6 +131,14 @@ func _on_command_processed(command: String, args: Array):
 			quest_system.display_quests()
 		"say":
 			social_system.send_message(args)
+			# Отправка сообщения через P2P
+			if p2p_adapter:
+				var message_data = {
+					"sender": "Player",
+					"text": args[0] if args.size() > 0 else "",
+					"timestamp": Time.get_ticks_msec()
+				}
+				p2p_adapter.send_message_to_player(0, "chat", message_data)
 		"quit":
 			_quit_game()
 		_:
