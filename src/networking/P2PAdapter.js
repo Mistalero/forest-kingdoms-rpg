@@ -2,8 +2,8 @@
 // This module integrates the decentralized P2P component with the game's networking layer
 
 // Import the P2P components
-import IdentityLayer from '../../../p2p/implementations/javascript/src/index.js';
-import StateSyncLayer from '../../../p2p/implementations/javascript/src/StateSyncLayer.js';
+import IdentityLayer from './p2p/IdentityLayer.js';
+import StateSyncLayer from './p2p/StateSyncLayer.js';
 
 class P2PAdapter {
   constructor() {
@@ -20,6 +20,7 @@ class P2PAdapter {
     
     // Initialize the state sync layer
     this.stateSyncLayer = new StateSyncLayer();
+    this.stateSyncLayer.setDIDDocument(this.didDocument);
     
     // Store for game state CRDTs
     this.gameStateCRDTs = new Map();
