@@ -6,6 +6,14 @@ extends Node
 # Сигналы
 signal user_input_received(input_text)
 
+# Протоколы MUDlet
+var mudlet_protocol = null
+
+# Инициализация
+func _init():
+	# Инициализация протоколов MUDlet
+	mudlet_protocol = preload("res://src/mud/interface/MUDletProtocol.gd").new()
+
 # Отображение приветственного сообщения
 func display_welcome_message():
 	print("+--------------------------------------------------+")
@@ -67,6 +75,52 @@ func display_goodbye_message():
 func display_text(text: String):
 	print(text)
 
+# Отображение цветного текста
+func display_colored_text(text: String, color: String):
+	if mudlet_protocol:
+		print(mudlet_protocol.colorize_text(text, color))
+	else:
+		print(text)
+
+# Отображение форматированного текста
+func display_formatted_text(text: String, attributes: Array):
+	if mudlet_protocol:
+		print(mudlet_protocol.format_text(text, attributes))
+	else:
+		print(text)
+
+# Отправка MSDP данных
+func send_msdp_data(table_name: String, data):
+	if mudlet_protocol:
+		mudlet_protocol.send_msdp_data(table_name, data)
+
+# Отправка GMCP данных
+func send_gmcp_data(module: String, data):
+	if mudlet_protocol:
+		mudlet_protocol.send_gmcp_data(module, data)
+
+# Отправка MXP данных
+func send_mxp_data(tag: String, attributes: Dictionary, content: String):
+	if mudlet_protocol:
+		mudlet_protocol.send_mxp_data(tag, attributes, content)
+
 # Отображение ошибки
 func display_error(error: String):
-	print("Ошибка: " + error)
+	if mudlet_protocol and mudlet_protocol.is_protocol_supported(mudlet_protocol.Protocols.ANSI):
+		print(mudlet_protocol.colorize_text("Ошибка: " + error, "red"))
+	else:
+		print("Ошибка: " + error)
+
+# Отображение предупреждения
+func display_warning(warning: String):
+	if mudlet_protocol and mudlet_protocol.is_protocol_supported(mudlet_protocol.Protocols.ANSI):
+		print(mudlet_protocol.colorize_text("Предупреждение: " + warning, "yellow"))
+	else:
+		print("Предупреждение: " + warning)
+
+# Отображение успешного сообщения
+func display_success(message: String):
+	if mudlet_protocol and mudlet_protocol.is_protocol_supported(mudlet_protocol.Protocols.ANSI):
+		print(mudlet_protocol.colorize_text(message, "green"))
+	else:
+		print(message)
