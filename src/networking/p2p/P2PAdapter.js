@@ -2,8 +2,8 @@
 // This module integrates the decentralized P2P component with the game's networking layer
 
 // Import the P2P components
-import IdentityLayer from './IdentityLayer.js';
-import StateSyncLayer from './StateSyncLayer.js';
+import IdentityLayer from './p2p/IdentityLayer.js';
+import StateSyncLayer from './p2p/StateSyncLayer.js';
 
 class P2PAdapter {
   constructor() {
