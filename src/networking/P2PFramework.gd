@@ -14,6 +14,10 @@ var session_manager
 var error_handler
 var p2p_adapter
 
+# Настройки производительности
+var low_performance_mode = false
+var sync_interval = 1000 # milliseconds
+
 # Состояние фреймворка
 var is_initialized = false
 var is_running = false
@@ -58,10 +62,10 @@ func initialize_components():
 	initialize_p2p_adapter()
 	
 	# Подключение сигналов
-	connection_manager.connect("peer_connected", Callable(self, "_on_peer_connected"))
-	connection_manager.connect("peer_disconnected", Callable(self, "_on_peer_disconnected"))
-	message_handler.connect("message_received", Callable(self, "_on_message_received"))
-	error_handler.connect("error_occurred", Callable(self, "_on_error_occurred"))
+	connection_manager.connect("peer_connected", _on_peer_connected)
+	connection_manager.connect("peer_disconnected", _on_peer_disconnected)
+	message_handler.connect("message_received", _on_message_received)
+	error_handler.connect("error_occurred", _on_error_occurred)
 
 # Инициализация P2P адаптера
 func initialize_p2p_adapter():
@@ -75,11 +79,11 @@ func initialize_p2p_adapter():
 		print("JavaScript P2P адаптер инициализирован успешно")
 		
 		# Подключение к сигналам адаптера
-		p2p_adapter.connect("node_initialized", Callable(self, "_on_node_initialized"))
-		p2p_adapter.connect("crdt_created", Callable(self, "_on_crdt_created"))
-		p2p_adapter.connect("crdt_updated", Callable(self, "_on_crdt_updated"))
-		p2p_adapter.connect("state_serialized", Callable(self, "_on_state_serialized"))
-		p2p_adapter.connect("state_deserialized", Callable(self, "_on_state_deserialized"))
+		p2p_adapter.connect("node_initialized", _on_node_initialized)
+		p2p_adapter.connect("crdt_created", _on_crdt_created)
+		p2p_adapter.connect("crdt_updated", _on_crdt_updated)
+		p2p_adapter.connect("state_serialized", _on_state_serialized)
+		p2p_adapter.connect("state_deserialized", _on_state_deserialized)
 	else:
 		push_error("Не удалось инициализировать JavaScript P2P адаптер")
 		# Создаем фиктивный адаптер в случае ошибки
@@ -159,6 +163,24 @@ func create_game_state_crdt(id: String, type: String, initial_value = null):
 	
 	return p2p_adapter.create_game_state_crdt(id, type, initial_value)
 
+# Установка режима низкой производительности
+func set_low_performance_mode(enabled: bool):
+	low_performance_mode = enabled
+	if p2p_adapter != null:
+		p2p_adapter.set_low_performance_mode(enabled)
+	
+	# Изменяем интервал синхронизации
+	if low_performance_mode:
+		sync_interval = 5000 # 5 секунд для слабых систем
+	else:
+		sync_interval = 1000 # 1 секунда для нормальных систем
+	
+	print("Режим низкой производительности: ", low_performance_mode)
+
+# Получение статуса режима низкой производительности
+func is_low_performance_mode() -> bool:
+	return low_performance_mode
+
 # Обработчики сигналов
 func _on_peer_connected(peer_id: int):
 	emit_signal("peer_connected", peer_id)
@@ -211,6 +233,9 @@ class DummyP2PAdapter:
 	func initialize():
 		print("Инициализация фиктивного P2P адаптера")
 		return true
+	
+	func set_low_performance_mode(enabled: bool):
+		print("Установка режима низкой производительности: ", enabled)
 	
 	func get_node_id() -> String:
 		return "dummy-node-id"

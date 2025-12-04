@@ -1,0 +1,132 @@
+events:
+  - name: player.joined
+    description: Fired when a player joins the game
+    payload:
+      type: object
+      properties:
+        playerId:
+          type: string
+        playerName:
+          type: string
+        joinTime:
+          type: integer
+  - name: player.left
+    description: Fired when a player leaves the game
+    payload:
+      type: object
+      properties:
+        playerId:
+          type: string
+        playerName:
+          type: string
+        leaveTime:
+          type: integer
+  - name: player.stateChanged
+    description: Fired when player state changes
+    payload:
+      type: object
+      properties:
+        playerId:
+          type: string
+        changedFields:
+          type: array
+        timestamp:
+          type: integer
+  - name: world.stateChanged
+    description: Fired when world state changes
+    payload:
+      type: object
+      properties:
+        changedZones:
+          type: array
+        changedEntities:
+          type: array
+        timestamp:
+          type: integer
+  - name: message.received
+    description: Fired when a message is received
+    payload:
+      type: object
+      properties:
+        fromPlayerId:
+          type: string
+        toPlayerId:
+          type: string
+        message:
+          type: string
+        messageType:
+          type: string
+        timestamp:
+          type: integer
+  - name: zone.entered
+    description: Fired when a player enters a zone
+    payload:
+      type: object
+      properties:
+        playerId:
+          type: string
+        zoneId:
+          type: string
+        enterTime:
+          type: integer
+  - name: zone.exited
+    description: Fired when a player exits a zone
+    payload:
+      type: object
+      properties:
+        playerId:
+          type: string
+        zoneId:
+          type: string
+        exitTime:
+          type: integer
+  - name: entity.created
+    description: Fired when a new entity is created
+    payload:
+      type: object
+      properties:
+        entityId:
+          type: string
+        entityType:
+          type: string
+        zoneId:
+          type: string
+        creatorId:
+          type: string
+        timestamp:
+          type: integer
+  - name: entity.destroyed
+    description: Fired when an entity is destroyed
+    payload:
+      type: object
+      properties:
+        entityId:
+          type: string
+        destroyerId:
+          type: string
+        timestamp:
+          type: integer
+  - name: faction.playerAssigned
+    description: Fired when a player is assigned to a faction
+    payload:
+      type: object
+      properties:
+        playerId:
+          type: string
+        factionId:
+          type: string
+        timestamp:
+          type: integer
+  - name: faction.balanceChanged
+    description: Fired when faction balance changes
+    payload:
+      type: object
+      properties:
+        factionId:
+          type: string
+        powerChange:
+          type: number
+        influenceChange:
+          type: number
+        timestamp:
+          type: integer

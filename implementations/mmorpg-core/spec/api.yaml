@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: MMORPG Core Component API
+  version: 1.0.0
+  description: API for managing MMORPG gameplay in a decentralized P2P environment
+paths:
+  /player/register:
+    post:
+      operationId: registerPlayer
+      summary: Register a new player
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerId:
+                  type: string
+                playerName:
+                  type: string
+                factionId:
+                  type: string
+                initialZone:
+                  type: string
+              required:
+                - playerId
+                - playerName
+      responses:
+        '200':
+          description: Player registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+        '400':
+          description: Invalid request
+  /player/state:
+    get:
+      operationId: getPlayerState
+      summary: Get player state
+      parameters:
+        - name: playerId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Player state retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playerId:
+                    type: string
+                  playerName:
+                    type: string
+                  position:
+                    type: object
+                  stats:
+                    type: object
+                  inventory:
+                    type: array
+        '404':
+          description: Player not found
+    post:
+      operationId: updatePlayerState
+      summary: Update player state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerId:
+                  type: string
+                stateData:
+                  type: object
+              required:
+                - playerId
+                - stateData
+      responses:
+        '200':
+          description: Player state updated
+        '400':
+          description: Invalid request
+  /world/state:
+    get:
+      operationId: getWorldState
+      summary: Get current world state
+      responses:
+        '200':
+          description: World state retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zones:
+                    type: array
+                  entities:
+                    type: array
+    post:
+      operationId: updateWorldState
+      summary: Update world state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stateData:
+                  type: object
+              required:
+                - stateData
+      responses:
+        '200':
+          description: World state updated
+  /message/send:
+    post:
+      operationId: sendMessage
+      summary: Send message between players
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fromPlayerId:
+                  type: string
+                toPlayerId:
+                  type: string
+                message:
+                  type: string
+                messageType:
+                  type: string
+              required:
+                - fromPlayerId
+                - message
+      responses:
+        '200':
+          description: Message sent successfully
+  /zone/info:
+    get:
+      operationId: getZoneInfo
+      summary: Get information about a game zone
+      parameters:
+        - name: zoneId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Zone information retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zoneId:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  playerCount:
+                    type: integer
+  /zone/move:
+    post:
+      operationId: movePlayerToZone
+      summary: Move player to a different zone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerId:
+                  type: string
+                zoneId:
+                  type: string
+              required:
+                - playerId
+                - zoneId
+      responses:
+        '200':
+          description: Player moved to zone
