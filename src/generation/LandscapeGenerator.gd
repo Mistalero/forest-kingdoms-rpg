@@ -12,10 +12,31 @@ var octaves = 4
 var persistence = 0.5
 var lacunarity = 2.0
 
+# Режим низкой производительности
+var low_performance_mode = false
+
 func _ready():
 	# Инициализация генератора случайных чисел
 	randomize()
 	seed_value = randi()
+
+# Установка режима низкой производительности
+func set_low_performance_mode(enabled: bool):
+	low_performance_mode = enabled
+	if low_performance_mode:
+		# Уменьшаем сложность генерации для слабых систем
+		width = 50
+		height = 50
+		octaves = 2
+		scale = 0.05
+		print("Включен режим низкой производительности для генерации ландшафта")
+	else:
+		# Восстанавливаем нормальные параметры
+		width = 100
+		height = 100
+		octaves = 4
+		scale = 0.1
+		print("Выключен режим низкой производительности для генерации ландшафта")
 
 # Генерация высотной карты с использованием шума Перлина
 func generate_heightmap():
@@ -25,23 +46,28 @@ func generate_heightmap():
 	for x in range(width):
 		var row = []
 		for y in range(height):
-			var amplitude = 1.0
-			var frequency = 1.0
-			var noise_height = 0.0
-			
-			# Генерация шума с несколькими октавами
-			for i in range(octaves):
-				var sample_x = (x + seed_value) * scale * frequency
-				var sample_y = (y + seed_value) * scale * frequency
+			if low_performance_mode:
+				# Упрощенный алгоритм для слабых систем
+				var simple_value = (sin(x * 0.1) * cos(y * 0.1) * 0.5 + 0.5)
+				row.append(simple_value)
+			else:
+				var amplitude = 1.0
+				var frequency = 1.0
+				var noise_height = 0.0
 				
-				# Используем встроенный шум Godot
-				var perlin_value = noise(sample_x, sample_y)
-				noise_height += perlin_value * amplitude
+				# Генерация шума с несколькими октавами
+				for i in range(octaves):
+					var sample_x = (x + seed_value) * scale * frequency
+					var sample_y = (y + seed_value) * scale * frequency
+					
+					# Используем встроенный шум Godot
+					var perlin_value = noise(sample_x, sample_y)
+					noise_height += perlin_value * amplitude
+					
+					amplitude *= persistence
+					frequency *= lacunarity
 				
-				amplitude *= persistence
-				frequency *= lacunarity
-			
-			row.append(noise_height)
+				row.append(noise_height)
 		heightmap.append(row)
 	
 	return heightmap
@@ -90,26 +116,40 @@ func generate_vegetation(biomes):
 			var plants = []
 			
 			# Генерация растительности в зависимости от биома
-			match biome:
-				"forest":
-					# В лесу генерируем деревья и кустарники
-					if randf() < 0.3:
-						plants.append("tree")
-					if randf() < 0.5:
-						plants.append("bush")
-				"plains":
-					# На равнинах генерируем траву и цветы
-					if randf() < 0.7:
-						plants.append("grass")
-					if randf() < 0.2:
-						plants.append("flower")
-				"mountains":
-					# В горах генерируем камни и редкую растительность
-					if randf() < 0.1:
-						plants.append("rock")
-					if randf() < 0.1:
-						plants.append("mountain_plant")
-		
+			if low_performance_mode:
+				# Упрощенная генерация для слабых систем
+				match biome:
+					"forest":
+						if randf() < 0.1:  # Меньше растительности
+							plants.append("tree")
+					"plains":
+						if randf() < 0.3:  # Меньше растительности
+							plants.append("grass")
+					"mountains":
+						if randf() < 0.05:  # Меньше растительности
+							plants.append("rock")
+			else:
+				# Нормальная генерация
+				match biome:
+					"forest":
+						# В лесу генерируем деревья и кустарники
+						if randf() < 0.3:
+							plants.append("tree")
+						if randf() < 0.5:
+							plants.append("bush")
+					"plains":
+						# На равнинах генерируем траву и цветы
+						if randf() < 0.7:
+							plants.append("grass")
+						if randf() < 0.2:
+							plants.append("flower")
+					"mountains":
+						# В горах генерируем камни и редкую растительность
+						if randf() < 0.1:
+							plants.append("rock")
+						if randf() < 0.1:
+							plants.append("mountain_plant")
+			
 			row.append(plants)
 		
 		vegetation.append(row)
