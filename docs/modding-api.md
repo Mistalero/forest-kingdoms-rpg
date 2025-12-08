@@ -35,6 +35,9 @@ ModdingAPI.register_item_type("magic_sword", MagicSwordClass)
 
 # Регистрация нового типа врага
 ModdingAPI.register_enemy_type("dragon", DragonClass)
+
+# Регистрация нового типа квеста
+ModdingAPI.register_quest_type("treasure_hunt", TreasureHuntQuestClass)
 ```
 
 #### Типы регистрируемых компонентов
@@ -86,6 +89,14 @@ ModdingAPI.modify_player_stat("strength", 10)
 **Параметры:**
 - `type_name` (string): Название типа врага
 - `class_reference` (class): Ссылка на класс врага
+
+### register_quest_type(type_name, class_reference)
+
+Регистрация нового типа квеста.
+
+**Параметры:**
+- `type_name` (string): Название типа квеста
+- `class_reference` (class): Ссылка на класс квеста
 
 ### get_player_data()
 
