@@ -1,3 +1,4 @@
+class_name CovenSystem
 extends Node
 ## Tracks all [Coven]s in the game.
 

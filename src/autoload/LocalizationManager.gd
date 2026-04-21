@@ -1,3 +1,4 @@
+class_name LocalizationManager
 extends Node
 
 # Менеджер локализации для Forest Kingdoms RPG

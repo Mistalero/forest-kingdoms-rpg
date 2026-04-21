@@ -1,3 +1,4 @@
+class_name GameInfo
 extends Node
 ## holds Current game state.
 

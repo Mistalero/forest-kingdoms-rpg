@@ -1,4 +1,5 @@
 @tool
+class_name SkeleRealmsGlobal
 extends Node
 ## A singleton that allows any script to access various important nodes without having to deal with scene scope.
 ## It also has some important utility functions for working with entities.

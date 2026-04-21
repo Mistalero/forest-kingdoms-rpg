@@ -1,3 +1,4 @@
+class_name CrimeMaster
 extends Node
 ## OBEY THE CRIME MASTER[br]
 ## This keeps track of any crimes committed against various [Coven]s.

@@ -1,3 +1,4 @@
+class_name SaveSystem
 extends Node
 ## The savegame system.
 ## This should be autoloaded.
