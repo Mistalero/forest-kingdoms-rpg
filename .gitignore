@@ -1,34 +1,43 @@
 ```
-# Godot specific
+# Godot-specific ignores
 *.import
-*.remap
+*.pidb
+*.suo
+*.user
+*.userprefs
 .project
-.user
+.idea/
+.vscode/
 
 # Build artifacts
-*.o
-*.obj
-*.a
-*.lib
-*.so
-*.dll
+export_presets.cfg
 *.exe
-*.out
+*.dll
+*.so
+*.dylib
 
-# Dependencies
-libretro/
-
-# Logs and temp files
-*.log
+# Temporary files
 *.tmp
-*.swp
-
-# Editors
-.vscode/
-.idea/
+*.temp
+*.log
 
 # Environment
 .env
 .env.local
 *.env.*
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.egg-info/
+build/
+dist/
+target/
+.gradle/
+
+# OS generated files
+.DS_Store
+Thumbs.db
 ```
