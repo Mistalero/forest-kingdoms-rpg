@@ -1,115 +1,81 @@
-# Децентрализованная Игровая Экосистема (Omni-Mesh)
+# Omni-Layer Decentralized Game Ecosystem
 
-## Описание
+A fully decentralized, peer-to-peer gaming platform where every client is a node. Supports infinite recursive sessions (shards), polymorphic rendering (Voxel, Anime, 2D, Text, etc.), and runs anywhere from BIOS to browsers via Libretro.
 
-Проект представляет собой универсальную децентрализованную игровую экосистему с архитектурой P2P (Peer-to-Peer), где каждый клиент является полноценной нодой сети. Система обеспечивает бесконечные игровые сессии с динамическим составом участников, полную изоляцию визуального отображения от логики и поддержку запуска на любом уровне абстракции: от прямой загрузки с оборудования (Bare Metal) до работы в качестве приложения внутри другой ОС или эмулятора.
+## Architecture Overview
 
-Ключевая особенность — единство состояния мира при разнообразии представления. Все участники находятся в едином физическом и логическом пространстве (распределенный реестр), но видят мир так, как настроено на их устройстве (Voxel/Minecraft, Anime/Cel-shading, 2D, Изометрия, Текстовый режим и др.).
+- **Core**: Unified game logic running in any environment (OS, Container, Bare Metal).
+- **Network**: Serverless P2P mesh with dynamic sharding. Every player hosts/validates.
+- **Visuals**: Client-side rendering only. Switch between Minecraft, Anime, 2D, Isometric, Text modes instantly without affecting game logic or other players.
+- **Data**: Distributed state synchronization. No central database.
+- **Platform**: Runs as a standalone executable, desktop shell, Libretro core, or embedded component.
 
-## Основные принципы архитектуры
+## Features
 
-### 1. Децентрализация и Равноправие
-- **Отсутствие центрального сервера:** Сеть состоит из равноправных узлов (нод).
-- **Полное хранение состояния:** Каждая полная нода хранит актуальное состояние мира (блокчейн-подобная структура).
-- **Консенсус:** Валидация действий происходит распределенно между участниками сессии.
-- **Живучесть:** Сессия существует вечно, пока активна хотя бы одна нода.
+- **Decentralized**: No central servers. Players form the network.
+- **Polymorphic Rendering**: Each user chooses their own visual style independently.
+- **Recursive Sessions**: Worlds inside worlds (shards within shards).
+- **Cross-Platform**: Compiles for Windows, Linux, macOS, Android, iOS, WebAssembly, and RetroArch (Libretro).
+- **Ephemeral**: No background daemons. The network exists only while the app is running.
+- **Legacy Support**: Compatible with old hardware via adaptive rendering and Libretro integration.
 
-### 2. Полиморфизм Запуска (Omni-Layer Execution)
-Единый бинарный образ системы может функционировать в различных режимах без изменения кода:
-- **Bare Metal / LiveUSB:** Прямая загрузка на оборудование как самостоятельная ОС.
-- **Desktop Shell:** Замена стандартной оболочки ОС с интеграцией игрового интерфейса.
-- **Приложение:** Запуск внутри Windows, Linux, macOS как обычная программа.
-- **Эмулятор / Libretro Core:** Работа в составе RetroArch или других эмуляторов для поддержки Legacy-платформ.
-- **Вложенность (Matryoshka):** Рекурсивный запуск одной сессии внутри другой.
-
-### 3. Изоляция Визуализации (Frontend Agnostic)
-- **Логика ≠ Рендеринг:** Игровая логика и физика едины для всех, но рендеринг полностью локален.
-- **Мульти-стиль:** Одновременная поддержка Voxel, Cel-shading, 2D, Isometric, Text-based и других стилей в одной сессии.
-- **Адаптивность:** Автоматический выбор качества и стиля в зависимости от возможностей устройства.
-
-### 4. Сетевая Гибридность
-- **Мультипротокольность:** Поддержка TCP, UDP, WebSocket, QUIC, WebRTC и специализированных протоколов.
-- **Топология:** Динамическое построение Mesh, Overlay и Darknet сетей.
-- **Маршрутизация:** Умное туннелирование трафика через доступные узлы.
-
-## Технические Особенности
-
-### Сессии и Шардинг
-- **Сессия = Шард:** Каждая игровая сессия является автономным шардом данных.
-- **Динамическая топология:** Автоматическое создание, слияние и разделение шардов в зависимости от нагрузки и числа участников.
-- **Рекурсия:** Возможность вложенных сессий (миры внутри миров) с общим или изолированным контекстом.
-
-### Совместимость и Платформы
-- **Нативная поддержка протоколов:** Полиморфные драйверы для разных версий сетевых протоколов без эмуляции.
-- **Legacy Support:** Запуск на устаревшем оборудовании через адаптивные клиенты и Libretro.
-- **Smart Cartridge:** Концепция программных картриджей с вычислительной мощностью внутри носителя.
-
-### Безопасность и Приватность
-- **Ephemeral Process:** Отсутствие фоновых демонов. Нода работает только пока запущен процесс.
-- **Шифрование:** Сквозное шифрование трафика и данных состояния.
-- **Анонимность:** Поддержка маршрутизации через анонимные сети (Tor/I2P совместимые слои).
-
-## Структура Проекта
+## Project Structure
 
 ```text
 /workspace
 ├── src/
-│   ├── core/               # Ядро логики и физики (независимое от рендера)
-│   ├── network/            # Сетевой стек (P2P, протоколы, консенсус)
-│   ├── visual/             # Фронтенды (Voxel, Anime, 2D, UI)
-│   ├── platform/           # Адаптеры платформ (Bare Metal, OS, Libretro)
-│   └── utils/              # Утилиты и вспомогательные модули
-├── docs/                   # Распределенная документация
-├── config/                 # Конфигурационные файлы
-└── addons/                 # Плагины и расширения
+│   ├── core/               # Main entry point and game logic
+│   │   ├── Main.gd
+│   │   └── InputHandler.gd
+│   ├── network/            # P2P networking and shard management
+│   │   └── NetworkManager.gd
+│   ├── visual/             # Polymorphic rendering system
+│   │   ├── VisualController.gd
+│   │   └── renderers/      # Specific renderer implementations
+│   │       ├── VoxelRenderer.gd
+│   │       ├── AnimeRenderer.gd
+│   │       ├── Sprite2DRenderer.gd
+│   │       ├── IsometricRenderer.gd
+│   │       ├── TextRenderer.gd
+│   │       └── AsciiRenderer.gd
+│   ├── data/               # Distributed state management
+│   │   └── DataManager.gd
+│   └── platform/           # Platform-specific adapters
+│       └── libretro/       # Libretro core implementation
+│           └── libretro_core.c
+├── docs/                   # Documentation
+└── README.md               # This file
 ```
 
-## Начало Работы
+## Usage
 
-### Быстрый старт
-1. **Клонирование:**
-   ```bash
-   git clone <repository_url>
-   cd workspace
-   ```
-2. **Запуск в Godot (для разработки):**
-   Откройте `project.godot` в Godot Engine 4.x+.
-3. **Сборка standalone-версии:**
-   Используйте экспортные пресеты для вашей платформы или сборки Docker-образа.
+### Standalone Mode
+Run the executable directly. It acts as a full node and game client.
 
-### Режимы Запуска
-- **Десктоп:** Запустите исполняемый файл. В настройках выберите режим "Desktop Shell" для интеграции с ОС.
-- **LiveUSB:** Запишите образ на накопитель и загрузитесь с него.
-- **Libretro:** Скомпилируйте ядро (`libretro.so`) и поместите в папку `cores` эмулятора RetroArch.
-- **Текстовый режим:** Запустите с флагом `--mud` или подключитесь через telnet-клиент к порту ноды.
+```bash
+./OmniLayerGame
+```
 
-## Документация
+### Libretro Mode
+Compile `src/platform/libretro/libretro_core.c` as a shared library and load it in RetroArch.
 
-Подробная информация разбита по модулям и доступна в директории [docs](docs/):
+```bash
+gcc -shared -fPIC -o omnilayer_libretro.so src/platform/libretro/libretro_core.c
+# Load omnilayer_libretro.so in RetroArch
+```
 
-### Архитектура и Сеть
-- [Обзор P2P Архитектуры](docs/p2p-overview.md)
-- [Сетевые Протоколы и Маршрутизация](docs/p2p-framework.md)
-- [Консенсус и Валидация](docs/architecture.md)
+### Configuration
+Set environment variables to control behavior:
+- `OMNI_ENV`: `bios`, `libretro`, `container`, or `standalone` (default).
+- `OMNI_DAEMON`: `true` to keep running after closing the window (not recommended for privacy).
 
-### Разработка и Моддинг
-- [API Моддинга](docs/modding-api.md)
-- [Примеры Модов](docs/modding-examples.md)
-- [Руководство по Вкладу](docs/contributing.md)
+## Development
 
-### Геймплей и Механики
-- [Игровые Зоны и Фракции](docs/game-zones.md)
-- [Система Повреждений](docs/damage-system.md)
-- [Процедурная Генерация](docs/procedural-generation.md)
+This project uses Godot Engine (GDScript) for the core logic but is designed to be engine-agnostic. The Libretro implementation is in C for maximum compatibility.
 
-### Техническая Информация
-- [Требования к Движку](docs/engine-requirements.md)
-- [Оптимизация Производительности](docs/performance.md)
-- [MUD Режим](docs/mud-mode.md)
+### Building
+1. **Godot**: Open `project.godot` in Godot 4.x.
+2. **Libretro**: Use a standard C compiler (gcc/clang) to build the core.
 
-## Лицензия
-
-Проект распространяется под лицензией, указанной в файле [LICENSE](LICENSE).
-
----
-*Примечание: Данный проект является живой экосистемой. Вы можете присоединиться к сети в любой момент, используя любой совместимый клиент.*
+## License
+MIT License.
