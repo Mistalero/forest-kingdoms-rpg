@@ -1,42 +1,34 @@
 ```
-# Backup files
-*.gd.bak
-
-# Godot-specific
-.project
+# Godot specific
 *.import
-export_presets.cfg
-
-# Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-*.egg-info/
+*.remap
+.project
+.user
 
 # Build artifacts
-dist/
-build/
-target/
+*.o
+*.obj
+*.a
+*.lib
 *.so
-*.dylib
 *.dll
+*.exe
+*.out
 
-# Logs
+# Dependencies
+libretro/
+
+# Logs and temp files
 *.log
+*.tmp
+*.swp
+
+# Editors
+.vscode/
+.idea/
 
 # Environment
 .env
 .env.local
 *.env.*
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
 ```
