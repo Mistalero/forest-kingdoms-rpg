@@ -1,38 +1,42 @@
 ```
-# Godot-specific ignores
+# Backup files
+*.gd.bak
+
+# Godot-specific
+.project
 *.import
-.scene.meta
-.script.meta
-.gd.meta
-.cfg.meta
-.tres.meta
-# Build artifacts
-*.exe
-*.dll
-*.so
-*.dylib
-*.a
-*.lib
+export_presets.cfg
+
 # Dependencies
 node_modules/
 venv/
 .venv/
 __pycache__/
-.mypy_cache/
-.pytest_cache/
-# Editor/IDE files
+*.egg-info/
+
+# Build artifacts
+dist/
+build/
+target/
+*.so
+*.dylib
+*.dll
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
 .vscode/
 .idea/
 *.swp
 *.swo
-*.tmp
-# System files
+
+# OS
 .DS_Store
 Thumbs.db
-# Logs
-*.log
-# Coverage
-coverage/
-htmlcov/
-.coverage
 ```

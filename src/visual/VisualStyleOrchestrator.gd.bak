@@ -1,0 +1,234 @@
+extends Node
+## VisualStyleOrchestrator
+## 
+## Опциональный менеджер для переключения между стилями (Minecraft/Voxel и Anime) на лету.
+## НЕ модифицирует исходные файлы стилей. Работает как внешний контроллер.
+## Принцип: Всё опционально, ничего не удаляется.
+
+signal style_changed(style_name: String)
+signal quality_changed(level: int)
+
+enum StyleType {
+	NONE,      # Только базовая отрисовка без спецэффектов
+	VOXEL,     # Minecraft стиль
+	ANIME,     # Anime/Cel-shading стиль
+	HYBRID     # Попытка смешать (если возможно, но обычно приоритет одному)
+}
+
+enum QualityLevel {
+	LOW,
+	MEDIUM,
+	HIGH,
+	ULTRA
+}
+
+# Текущее состояние
+var current_style: StyleType = StyleType.NONE
+var current_quality: QualityLevel = QualityLevel.MEDIUM
+
+# Ссылки на опциональные менеджеры (заполняются автоматически или вручную)
+var voxel_manager: Node = null
+var anime_manager: Node = null
+
+# Настройки путей для автопоиска (можно изменить в инспекторе)
+@export var voxel_manager_path: NodePath = NodePath("/root/VoxelWorld")
+@export var anime_manager_path: NodePath = NodePath("/root/AnimeStyleManager")
+
+# Флаги активности (можно отключить любой стиль глобально)
+@export var enable_voxel_style: bool = true
+@export var enable_anime_style: bool = true
+
+func _ready() -> void:
+	# Ждем немного, чтобы все автлоады инициализировались
+	await get_tree().process_frame
+	_auto_discover_managers()
+	# Применяем стиль по умолчанию (можно вынести в настройки проекта)
+	_set_style_internal(current_style)
+
+func _auto_discover_managers() -> void:
+	# Попытка найти воксельный менеджер
+	if has_node(voxel_manager_path):
+		voxel_manager = get_node(voxel_manager_path)
+		print("[VisualStyleOrchestrator] Voxel manager найден: ", voxel_manager.name)
+	else:
+		print("[VisualStyleOrchestrator] Voxel manager не найден по пути: ", voxel_manager_path)
+	
+	# Попытка найти аниме менеджер
+	if has_node(anime_manager_path):
+		anime_manager = get_node(anime_manager_path)
+		print("[VisualStyleOrchestrator] Anime manager найден: ", anime_manager.name)
+	else:
+		print("[VisualStyleOrchestrator] Anime manager не найден по пути: ", anime_manager_path)
+
+## Публичный метод: Переключить на воксельный стиль
+func set_voxel_style() -> void:
+	if not enable_voxel_style:
+		push_warning("Voxel стиль отключен в настройках оркестратора")
+		return
+	_set_style_internal(StyleType.VOXEL)
+
+## Публичный метод: Переключить на аниме стиль
+func set_anime_style() -> void:
+	if not enable_anime_style:
+		push_warning("Anime стиль отключен в настройках оркестратора")
+		return
+	_set_style_internal(StyleType.ANIME)
+
+## Публичный метод: Отключить специальные стили (базовая отрисовка)
+func set_base_style() -> void:
+	_set_style_internal(StyleType.NONE)
+
+## Публичный метод: Переключатель (toggle)
+func toggle_style() -> void:
+	match current_style:
+		StyleType.VOXEL:
+			set_anime_style() if enable_anime_style else set_base_style()
+		StyleType.ANIME:
+			set_base_style()
+		_:
+			set_voxel_style() if enable_voxel_style else set_anime_style()
+
+## Внутренняя логика переключения
+func _set_style_internal(new_style: StyleType) -> void:
+	if current_style == new_style:
+		return
+
+	# 1. Сначала отключаем ВСЕ стили, чтобы избежать конфликтов ресурсов
+	_disable_all_styles()
+
+	# 2. Включаем нужный
+	current_style = new_style
+	match new_style:
+		StyleType.VOXEL:
+			_enable_voxel()
+		StyleType.ANIME:
+			_enable_anime()
+		StyleType.NONE:
+			pass # Ничего не делаем, база всегда активна
+
+	style_changed.emit(_get_style_name(new_style))
+	print("[VisualStyleOrchestrator] Стиль переключен на: ", _get_style_name(new_style))
+
+func _disable_all_styles() -> void:
+	# Безопасное отключение без удаления нод
+	if voxel_manager:
+		_safe_set_active(voxel_manager, false)
+	
+	if anime_manager:
+		_safe_set_active(anime_manager, false)
+	
+	# Сброс окружения (если нужно)
+	_reset_environment()
+
+func _enable_voxel() -> void:
+	if not voxel_manager:
+		push_error("Voxel менеджер не найден, невозможно включить воксельный стиль")
+		return
+	
+	_safe_set_active(voxel_manager, true)
+	# Дополнительные настройки для вокселей при включении
+	_configure_environment_for_voxel()
+
+func _enable_anime() -> void:
+	if not anime_manager:
+		push_error("Anime менеджер не найден, невозможно включить аниме стиль")
+		return
+	
+	_safe_set_active(anime_manager, true)
+	# Дополнительные настройки для аниме при включении
+	_configure_environment_for_anime()
+
+## Универсальный метод безопасной активации/деактивации ноды
+## Пробует несколько стратегий, чтобы быть максимально совместимым
+func _safe_set_active(target: Node, active: bool) -> void:
+	if target == null:
+		return
+
+	# Стратегия 1: Свойство 'active' (часто используется в кастомных менеджерах)
+	if target.has_method("set_active"):
+		target.set_active(active)
+	elif "active" in target:
+		target.active = active
+	
+	# Стратегия 2: Process режим (останавливаем логику)
+	# Если деактивируем, ставим DORMANT, если активируем - восстанавливаем
+	if not active:
+		if target.process_mode != Node.PROCESS_MODE_DISABLED:
+			target.set_process(false)
+			target.set_physics_process(false)
+			# Запоминаем, что мы сами его задизейблили (можно улучшить через словарь)
+	else:
+		target.set_process(true)
+		target.set_physics_process(true)
+
+	# Стратегия 3: Видимость (если это визуальная нода)
+	if target is CanvasItem or target is Node3D:
+		target.visible = active
+
+func _reset_environment() -> void:
+	# Сброс настроек мира к дефолтным, чтобы стили не накладывались
+	# Можно расширить под конкретные нужды проекта
+	var env = Environment.new()
+	# Базовая настройка...
+	# (Здесь можно добавить сброс конкретных параметров WorldEnvironment)
+
+func _configure_environment_for_voxel() -> void:
+	# Специфичные настройки для вокселей (например, дальность прорисовки, туман)
+	# Заглушка для будущей интеграции
+	pass
+
+func _configure_environment_for_anime() -> void:
+	# Специфичные настройки для аниме (пост-процессинг, цвета)
+	# Заглушка для будущей интеграции
+	pass
+
+## Управление качеством
+func set_quality(level: QualityLevel) -> void:
+	current_quality = level
+	_apply_quality_settings(level)
+	quality_changed.emit(level)
+
+func _apply_quality_settings(level: QualityLevel) -> void:
+	# Проксируем настройки качества в активные менеджеры
+	# Это позволяет менять качество без переключения стиля
+	
+	# Пример передачи в воксель
+	if voxel_manager and voxel_manager.has_method("set_render_quality"):
+		voxel_manager.set_render_quality(level)
+		
+	# Пример передачи в аниме
+	if anime_manager and anime_manager.has_method("set_post_process_quality"):
+		anime_manager.set_post_process_quality(level)
+	
+	print("[VisualStyleOrchestrator] Качество установлено: ", QualityLevel.keys()[level])
+
+## Утилиты
+func _get_style_name(style: StyleType) -> String:
+	match style:
+		StyleType.VOXEL: return "Minecraft/Voxel"
+		StyleType.ANIME: return "Anime/Cel-Shader"
+		StyleType.NONE: return "Base/Default"
+		_: return "Unknown"
+
+func get_current_style_info() -> Dictionary:
+	return {
+		"style": current_style,
+		"style_name": _get_style_name(current_style),
+		"quality": current_quality,
+		"voxel_available": voxel_manager != null,
+		"anime_available": anime_manager != null
+	}
+
+## Горячие клавиши (для быстрой отладки)
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"): 
+		# Пример: Esc переключает стили (можно убрать в релизе)
+		toggle_style()
+	
+	# Цифры для качества
+	if event is InputEventKey and event.pressed:
+		match event.keycode:
+			KEY_1: set_quality(QualityLevel.LOW)
+			KEY_2: set_quality(QualityLevel.MEDIUM)
+			KEY_3: set_quality(QualityLevel.HIGH)
+			KEY_4: set_quality(QualityLevel.ULTRA)
