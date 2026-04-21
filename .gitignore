@@ -1,26 +1,30 @@
-# Godot
-export_presets.cfg
-godot.editor.pid
-*.godot
-!/project.godot
+```
+# Godot-specific ignores
+*.import
+*.uid
+.export_presets
+.editor/
 
-# Imported assets
-.import/
+# Build artifacts
+*.so
+*.dylib
+*.dll
+*.exe
+*.bin
 
-# Export templates
-*.tpz
+# Temporary files
+*.tmp
+*.temp
+*.backup
 
 # Logs
 *.log
 
-# Temp files
-*.tmp
-*.temp
+# OS-specific files
+.DS_Store
+Thumbs.db
 
-# Backup files
+# Configuration backups
 *.bak
-*~
-
-# IDE
-*.swp
-*.swo
+*.old
+```
