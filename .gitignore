@@ -1,26 +1,31 @@
-# Godot
+```
+# Godot-specific ignores
+*.import
+*.remap
 export_presets.cfg
-godot.editor.pid
-*.godot
-!/project.godot
+.user
+.editor
+.autoloads/
 
-# Imported assets
-.import/
+# Dependencies
+addons/*/node_modules/
+addons/*/.venv/
+addons/*/.env
 
-# Export templates
-*.tpz
+# Build artifacts
+*.so
+*.dll
+*.dylib
+*.exe
+*.bin
 
-# Logs
+# Logs and temporary files
 *.log
-
-# Temp files
 *.tmp
 *.temp
+*.cache
 
-# Backup files
-*.bak
-*~
-
-# IDE
-*.swp
-*.swo
+# OS specific
+.DS_Store
+Thumbs.db
+```

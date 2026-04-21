@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="SKConfig" load_steps=2 format=3 uid="uid://skconfig001"]
+
+[ext_resource type="Script" path="res://addons/skelerealms/scripts/misc/skconfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+game_root = null
+default_world = "main"
+default_world_position = Vector3(0, 0, 0)
+equipment_slots = ["head", "chest", "legs", "feet", "hands", "main_hand", "off_hand"]
+skills = {
+"strength": {"initial_level": 1, "max_level": 100},
+"agility": {"initial_level": 1, "max_level": 100},
+"intelligence": {"initial_level": 1, "max_level": 100},
+"endurance": {"initial_level": 1, "max_level": 100},
+"combat": {"initial_level": 1, "max_level": 100}
+}
+attributes = {
+"health": {"base": 100, "scale": 10},
+"stamina": {"base": 50, "scale": 5},
+"magicka": {"base": 75, "scale": 8}
+}
+status_effects = []
+skill_xp_formula = "int(100 * pow(1.5, skill_level))"
+character_xp_formula = "int(200 * pow(1.2, character_level))"

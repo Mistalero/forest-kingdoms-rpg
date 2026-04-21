@@ -5,10 +5,24 @@ config/icon="res://icon.png"
 run/main_scene="res://src/scenes/Main.tscn"
 
 [autoload]
-
 GameManager="*res://src/autoload/GameManager.gd"
 LocalizationManager="*res://src/autoload/LocalizationManager.gd"
-
+SkeleRealmsCore="*res://src/skelerealms/SkeleRealmsCore.gd"
+SkeleRealmsCombat="*res://src/skelerealms/SkeleRealmsCombat.gd"
+SkeleRealmsProsthesis="*res://src/skelerealms/SkeleRealmsProsthesis.gd"
+SkeleRealmsIntegration="*res://src/skelerealms/SkeleRealmsIntegration.gd"
+SkeleRealmsGlobal="*res://addons/skelerealms/scripts/sk_global.gd"
+GameInfo="*res://addons/skelerealms/scripts/system/game_info.gd"
+SaveSystem="*res://addons/skelerealms/scripts/system/save_system.gd"
+CovenSystem="*res://addons/skelerealms/scripts/covens/coven_system.gd"
+CrimeMaster="*res://addons/skelerealms/scripts/crime/crime_master.gd"
+BareMetalMode="*res://src/bare_metal/BareMetalMode.gd"
+ConsoleInterface="*res://src/bare_metal/ConsoleInterface.gd"
+CommandParser="*res://src/bare_metal/CommandParser.gd"
+EntityRenderer="*res://src/bare_metal/EntityRenderer.gd"
+CombatRenderer="*res://src/bare_metal/CombatRenderer.gd"
+InventoryRenderer="*res://src/bare_metal/InventoryRenderer.gd"
+NetworkConsole="*res://src/bare_metal/NetworkConsole.gd"
 [rendering]
 
 environment/default_environment_mode=2
@@ -20,3 +34,14 @@ common/enable_pause_aware_picking=true
 [gui]
 
 common/drop_mouse_on_gui_input=false
+
+[skelerealms]
+
+config_path="res://addons/skelerealms/config/sk_config.tres"
+actor_fade_distance=50.0
+seconds_per_minute=3.0
+minutes_per_hour=60
+hours_per_day=24
+days_per_week=7
+weeks_in_month=4
+months_in_year=12
