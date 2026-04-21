@@ -1,139 +1,134 @@
 extends Node
+class_name VisualController
 
-## Polymorphic Visual Controller.
-## Manages rendering modes (Voxel, Anime, 2D, Isometric, Text, etc.)
-## Completely isolated from game logic.
+## Полиморфный контроллер визуализации
+## Поддерживает переключение между режимами на лету без остановки игры
 
-signal render_mode_changed(mode: String)
-signal quality_changed(level: int)
+signal mode_changed(mode: String)
+signal quality_changed(quality: String)
 
-enum RenderMode { VOXEL, ANIME, SPRITE_2D, ISOMETRIC, TEXT_ONLY, ASCII }
-enum QualityLevel { LOW, MEDIUM, HIGH, ULTRA }
+enum RenderMode {
+VOXEL,      # Minecraft стиль
+ANIME,      # Cel-shading аниме
+DIMENSION_2D,   # Классическое 2D
+ISOMETRIC,  # Изометрия
+SPRITE_3D,  # Спрайтовое 3D
+TEXT,       # Текстовый режим
+ASCII       # ASCII графика
+}
 
 var current_mode: RenderMode = RenderMode.VOXEL
-var current_quality: QualityLevel = QualityLevel.MEDIUM
-var user_preferences: Dictionary = {}
-
-# References to specific renderers (loaded dynamically)
+var current_quality: String = "high"
+var renderers: Dictionary = {}
 var active_renderer: Node = null
+var paused: bool = false
+
+# Настройки качества
+var quality_settings: Dictionary = {
+"low": {"shadow": false, "aa": false, "resolution_scale": 0.5},
+"medium": {"shadow": true, "aa": false, "resolution_scale": 0.75},
+"high": {"shadow": true, "aa": true, "resolution_scale": 1.0},
+"ultra": {"shadow": true, "aa": true, "resolution_scale": 1.5, "raytracing": true}
+}
 
 func _ready():
-	_load_user_preferences()
-	_apply_render_mode(current_mode)
+print("[VisualController] Инициализация визуального контроллера")
+register_renderers()
+set_render_mode("voxel")
 
-func _load_user_preferences():
-	# Load from config file or local storage
-	# For now, defaults
-	user_preferences["mode"] = "voxel"
-	user_preferences["quality"] = "medium"
-	
-	if user_preferences.has("mode"):
-		set_mode_by_string(user_preferences["mode"])
-	if user_preferences.has("quality"):
-		set_quality_by_string(user_preferences["quality"])
+func register_renderers():
+"""Регистрирует все доступные рендереры"""
+var renderer_paths = {
+"voxel": "res://src/visual/renderers/VoxelRenderer.gd",
+"anime": "res://src/visual/renderers/AnimeRenderer.gd",
+"2d": "res://src/visual/renderers/Renderer2D.gd",
+"isometric": "res://src/visual/renderers/IsometricRenderer.gd",
+"sprite3d": "res://src/visual/renderers/Sprite3DRenderer.gd",
+"text": "res://src/visual/renderers/TextRenderer.gd",
+"ascii": "res://src/visual/renderers/ASCIIRenderer.gd"
+}
 
-func apply_user_preferences():
-	_load_user_preferences()
-	_apply_render_mode(current_mode)
+for name, path in renderer_paths:
+if ResourceLoader.exists(path):
+var script = load(path)
+var renderer = Node.new()
+renderer.set_script(script)
+add_child(renderer)
+renderers[name] = renderer
+print("[VisualController] Рендерер зарегистрирован: %s" % name)
+else:
+push_warning("[VisualController] Рендерер не найден: %s" % path)
 
-func set_mode_by_string(mode_str: String):
-	match mode_str.to_lower():
-		"voxel", "minecraft":
-			current_mode = RenderMode.VOXEL
-		"anime", "cel":
-			current_mode = RenderMode.ANIME
-		"2d", "sprite":
-			current_mode = RenderMode.SPRITE_2D
-		"isometric", "iso":
-			current_mode = RenderMode.ISOMETRIC
-		"text", "tty":
-			current_mode = RenderMode.TEXT_ONLY
-		"ascii":
-			current_mode = RenderMode.ASCII
-		_:
-			current_mode = RenderMode.VOXEL
-	
-	_apply_render_mode(current_mode)
+func set_render_mode(mode_name: String):
+"""Переключает режим рендеринга на лету"""
+mode_name = mode_name.to_lower()
 
-func set_quality_by_string(qual_str: String):
-	match qual_str.to_lower():
-		"low":
-			current_quality = QualityLevel.LOW
-		"medium":
-			current_quality = QualityLevel.MEDIUM
-		"high":
-			current_quality = QualityLevel.HIGH
-		"ultra":
-			current_quality = QualityLevel.ULTRA
-		_:
-			current_quality = QualityLevel.MEDIUM
-	
-	_apply_quality(current_quality)
+# Определяем enum режима
+match mode_name:
+"voxel": current_mode = RenderMode.VOXEL
+"anime": current_mode = RenderMode.ANIME
+"2d": current_mode = RenderMode.DIMENSION_2D
+"isometric": current_mode = RenderMode.ISOMETRIC
+"sprite3d": current_mode = RenderMode.SPRITE_3D
+"text": current_mode = RenderMode.TEXT
+"ascii": current_mode = RenderMode.ASCII
+_: 
+push_error("[VisualController] Неизвестный режим: %s" % mode_name)
+return
 
-func toggle_style():
-	# Simple toggle between Voxel and Anime for quick switching
-	if current_mode == RenderMode.VOXEL:
-		set_mode_by_string("anime")
-	else:
-		set_mode_by_string("voxel")
+# Деактивируем текущий рендерер
+if active_renderer:
+active_renderer.set_process(false)
+active_renderer.visible = false
 
-func _apply_render_mode(mode: RenderMode):
-	print("[Visual] Applying render mode: ", RenderMode.keys()[mode])
-	
-	# Cleanup old renderer
-	if active_renderer:
-		active_renderer.queue_free()
-		active_renderer = null
-	
-	# Load new renderer based on mode
-	var renderer_path = ""
-	match mode:
-		RenderMode.VOXEL:
-			renderer_path = "res://src/visual/renderers/VoxelRenderer.gd"
-		RenderMode.ANIME:
-			renderer_path = "res://src/visual/renderers/AnimeRenderer.gd"
-		RenderMode.SPRITE_2D:
-			renderer_path = "res://src/visual/renderers/Sprite2DRenderer.gd"
-		RenderMode.ISOMETRIC:
-			renderer_path = "res://src/visual/renderers/IsometricRenderer.gd"
-		RenderMode.TEXT_ONLY:
-			renderer_path = "res://src/visual/renderers/TextRenderer.gd"
-		RenderMode.ASCII:
-			renderer_path = "res://src/visual/renderers/AsciiRenderer.gd"
-	
-	if ResourceLoader.exists(renderer_path):
-		var script = load(renderer_path)
-		active_renderer = Node.new()
-		active_renderer.set_script(script)
-		add_child(active_renderer)
-		print("[Visual] Renderer loaded: ", renderer_path)
-	else:
-		push_warning("[Visual] Renderer not found: ", renderer_path, ". Using fallback.")
-		# Fallback to a simple node if specific renderer missing
-		active_renderer = Node.new()
-		add_child(active_renderer)
-	
-	render_mode_changed.emit(RenderMode.keys()[mode])
-	_apply_quality(current_quality)
+# Активируем новый рендерер
+if renderers.has(mode_name):
+active_renderer = renderers[mode_name]
+active_renderer.set_process(true)
+active_renderer.visible = true
+print("[VisualController] Режим изменен на: %s" % mode_name)
+mode_changed.emit(mode_name)
+else:
+push_error("[VisualController] Рендерер не активирован: %s" % mode_name)
 
-func _apply_quality(level: QualityLevel):
-	print("[Visual] Applying quality level: ", QualityLevel.keys()[level])
-	
-	# Adjust rendering settings based on quality
-	# This would interact with the active_renderer to change LOD, shadows, etc.
-	match level:
-		QualityLevel.LOW:
-			ProjectSettings.set_setting("rendering/quality/shadows/enabled", false)
-			ProjectSettings.set_setting("rendering/quality/filters/msaa/mode", 0) # Disabled
-		QualityLevel.MEDIUM:
-			ProjectSettings.set_setting("rendering/quality/shadows/enabled", true)
-			ProjectSettings.set_setting("rendering/quality/filters/msaa/mode", 2) # 2x
-		QualityLevel.HIGH:
-			ProjectSettings.set_setting("rendering/quality/shadows/enabled", true)
-			ProjectSettings.set_setting("rendering/quality/filters/msaa/mode", 3) # 4x
-		QualityLevel.ULTRA:
-			ProjectSettings.set_setting("rendering/quality/shadows/enabled", true)
-			ProjectSettings.set_setting("rendering/quality/filters/msaa/mode", 3) # 4x
-			# Enable extra post-processing here
-	
-	quality_changed.emit(level)
+func set_quality(quality: String):
+"""Применяет настройки качества"""
+quality = quality.to_lower()
+if not quality_settings.has(quality):
+push_error("[VisualController] Неизвестное качество: %s" % quality)
+return
+
+current_quality = quality
+var settings = quality_settings[quality]
+
+# Применяем настройки к проекту
+ProjectSettings.set_setting("rendering/lights_and_shadows/use_gi", settings.get("shadow", false))
+ProjectSettings.set_setting("rendering/anti_aliasing/quality", settings.get("aa", false))
+ProjectSettings.set_setting("display/window/size/viewport_width", int(1920 * settings.get("resolution_scale", 1.0)))
+ProjectSettings.set_setting("display/window/size/viewport_height", int(1080 * settings.get("resolution_scale", 1.0)))
+
+print("[VisualController] Качество установлено: %s" % quality)
+quality_changed.emit(quality)
+
+# Уведомляем активный рендерер
+if active_renderer and active_renderer.has_method("apply_quality"):
+active_renderer.apply_quality(settings)
+
+func pause_rendering(paused_state: bool):
+"""Приостанавливает или возобновляет рендеринг"""
+paused = paused_state
+if active_renderer:
+active_renderer.set_process(not paused_state)
+
+func get_supported_modes() -> Array:
+"""Возвращает список поддерживаемых режимов"""
+return renderers.keys()
+
+func get_current_mode_info() -> Dictionary:
+"""Возвращает информацию о текущем режиме"""
+return {
+"mode": RenderMode.keys()[current_mode].to_lower(),
+"quality": current_quality,
+"paused": paused,
+"available_modes": get_supported_modes()
+}

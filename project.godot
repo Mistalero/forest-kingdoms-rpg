@@ -1,50 +1,71 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; but it can also be edited manually.
+
+config_version=5
+
 [application]
 
-config/name="Forest Kingdoms RPG"
-config/icon="res://icon.png"
-run/main_scene="res://src/scenes/Main.tscn"
+config/name="Omni-Net Genesis"
+run/main_scene="res://src/core/Main.tscn"
+config/features=PackedStringArray("4.2", "Forward Plus")
+config/icon="res://icon.svg"
 
 [autoload]
-GameManager="*res://src/autoload/GameManager.gd"
-LocalizationManager="*res://src/autoload/LocalizationManager.gd"
-SkeleRealmsCore="*res://src/skelerealms/SkeleRealmsCore.gd"
-SkeleRealmsCombat="*res://src/skelerealms/SkeleRealmsCombat.gd"
-SkeleRealmsProsthesis="*res://src/skelerealms/SkeleRealmsProsthesis.gd"
-SkeleRealmsIntegration="*res://src/skelerealms/SkeleRealmsIntegration.gd"
-SkeleRealmsGlobal="*res://addons/skelerealms/scripts/sk_global.gd"
-GameInfo="*res://addons/skelerealms/scripts/system/game_info.gd"
-SaveSystem="*res://addons/skelerealms/scripts/system/save_system.gd"
-CovenSystem="*res://addons/skelerealms/scripts/covens/coven_system.gd"
-CrimeMaster="*res://addons/skelerealms/scripts/crime/crime_master.gd"
-BareMetalMode="*res://src/bare_metal/BareMetalMode.gd"
-ConsoleInterface="*res://src/bare_metal/ConsoleInterface.gd"
-VisualStyleOrchestrator="*res://src/visual/VisualStyleOrchestrator.gd"
-CommandParser="*res://src/bare_metal/CommandParser.gd"
-EntityRenderer="*res://src/bare_metal/EntityRenderer.gd"
-CombatRenderer="*res://src/bare_metal/CombatRenderer.gd"
-InventoryRenderer="*res://src/bare_metal/InventoryRenderer.gd"
-NetworkConsole="*res://src/bare_metal/NetworkConsole.gd"
-AnimeStyleManager="*res://src/anime_style/AnimeStyleManager.gd"
-VisualStyleManager="*res://src/visual/VisualStyleManager.gd"
+
+GameCore="*res://src/core/GameCore.gd"
+InputHandler="*res://src/core/InputHandler.gd"
+NetworkManager="*res://src/network/NetworkManager.gd"
+VisualController="*res://src/visual/VisualController.gd"
+DataManager="*res://src/data/DataManager.gd"
+SessionManager="*res://src/network/SessionManager.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+
+[input]
+
+move_forward={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":87,"key_label":0,"unicode":119,"echo":false,"script":null)
+]
+}
+move_backward={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":83,"key_label":0,"unicode":115,"echo":false,"script":null)
+]
+}
+move_left={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":65,"key_label":0,"unicode":97,"echo":false,"script":null)
+]
+}
+move_right={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":68,"key_label":0,"unicode":100,"echo":false,"script":null)
+]
+}
+jump={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"key_label":0,"unicode":32,"echo":false,"script":null)
+]
+}
+visual_toggle={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194325,"key_label":0,"unicode":0,"echo":false,"script":null)
+]
+}
+
+[network]
+
+limits/debugger/max_chars_per_second=32768
+limits/debugger/max_queued_messages=2048
+
 [rendering]
 
-environment/default_environment_mode=2
-
-[physics]
-
-common/enable_pause_aware_picking=true
-
-[gui]
-
-common/drop_mouse_on_gui_input=false
-
-[skelerealms]
-
-config_path="res://addons/skelerealms/config/sk_config.tres"
-actor_fade_distance=50.0
-seconds_per_minute=3.0
-minutes_per_hour=60
-hours_per_day=24
-days_per_week=7
-weeks_in_month=4
-months_in_year=12
+renderer/rendering_method="forward_plus"
+lights_and_shadows/use_gi=true
+anti_aliasing/quality=2
