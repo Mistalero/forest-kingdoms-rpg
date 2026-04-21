@@ -23,6 +23,7 @@ EntityRenderer="*res://src/bare_metal/EntityRenderer.gd"
 CombatRenderer="*res://src/bare_metal/CombatRenderer.gd"
 InventoryRenderer="*res://src/bare_metal/InventoryRenderer.gd"
 NetworkConsole="*res://src/bare_metal/NetworkConsole.gd"
+AnimeStyleManager="*res://src/anime_style/AnimeStyleManager.gd"
 [rendering]
 
 environment/default_environment_mode=2
