@@ -18,12 +18,14 @@ CovenSystem="*res://addons/skelerealms/scripts/covens/coven_system.gd"
 CrimeMaster="*res://addons/skelerealms/scripts/crime/crime_master.gd"
 BareMetalMode="*res://src/bare_metal/BareMetalMode.gd"
 ConsoleInterface="*res://src/bare_metal/ConsoleInterface.gd"
+VisualStyleOrchestrator="*res://src/visual/VisualStyleOrchestrator.gd"
 CommandParser="*res://src/bare_metal/CommandParser.gd"
 EntityRenderer="*res://src/bare_metal/EntityRenderer.gd"
 CombatRenderer="*res://src/bare_metal/CombatRenderer.gd"
 InventoryRenderer="*res://src/bare_metal/InventoryRenderer.gd"
 NetworkConsole="*res://src/bare_metal/NetworkConsole.gd"
 AnimeStyleManager="*res://src/anime_style/AnimeStyleManager.gd"
+VisualStyleManager="*res://src/visual/VisualStyleManager.gd"
 [rendering]
 
 environment/default_environment_mode=2
